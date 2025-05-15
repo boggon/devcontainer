@@ -95,16 +95,22 @@ RUN uv tool install slither-analyzer && \
 
 # Fetch and install setups
 ## ityfuzz
-RUN curl -fsSL https://ity.fuzz.land/ | zsh
-RUN ityfuzzup
+# Combine installation, sourcing env, and running toolup
+RUN curl -fsSL https://ity.fuzz.land/ | zsh && \
+    . ${HOME}/.zshenv && \
+    ityfuzzup
 
 ## Foundry framework
-RUN curl -fsSL https://foundry.paradigm.xyz | zsh
-RUN foundryup
+# Combine installation, sourcing env, and running foundryup
+RUN curl -fsSL https://foundry.paradigm.xyz | zsh && \
+    . ${HOME}/.zshenv && \
+    foundryup
 
 ## Aderyn
-RUN curl -fsSL https://raw.githubusercontent.com/Cyfrin/up/main/install | zsh
-RUN cyfrinup
+# Combine installation, sourcing env, and running toolup
+RUN curl -fsSL https://raw.githubusercontent.com/Cyfrin/up/main/install | zsh && \
+    . ${HOME}/.zshenv && \
+    cyfrinup
 
 ## Halmos
 ### First installs uv, and then the latest version of halmos and adds it to PATH
@@ -123,7 +129,7 @@ RUN curl -fsSL https://get.heimdall.rs | zsh && \
 ### Set working directory for Medusa operations
 WORKDIR ${HOME}/medusa
 RUN git clone https://github.com/crytic/medusa ${HOME}/medusa && \
-    export LATEST_TAG="$(git describe --tags | sed 's/-[0-9]\+-g\w\+$//')" && \
+    export LATEST_TAG="$(git describe --tags --abbrev=0 || git rev-parse HEAD)" && \
     git checkout "$LATEST_TAG" && \
     go build -trimpath -o=${HOME}/.local/bin/medusa -ldflags="-s -w" && \
     chmod 755 ${HOME}/.local/bin/medusa
